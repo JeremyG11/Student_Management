@@ -1,11 +1,10 @@
-const aysncHandler = require('express-async-handler')
+const asyncHandler = require('express-async-handler')
 const Department = require('../models/departmentsModel')
-
+const Course = require('../models/cousesModel')
 // Create a new department
-const createDept = aysncHandler( async (req, res) => {
+const createDept = asyncHandler( async (req, res) => {
 
     const { dept_name } = req.body
-
 
     if(!dept_name) {
         res.status(400)
@@ -24,6 +23,19 @@ const createDept = aysncHandler( async (req, res) => {
     }
 })
 
+const getDepartments = asyncHandler( async (req, res) => {
+    const department =  await Department.findById(req.params.departmentId)
+    if(!department) {
+        res.status(404)
+        throw new Error('Could not found, No department with that id was found')
+    }else{
+        res.status(200).json({ data:{
+             department
+        }})
+    }
+})
+
 module.exports = {
     createDept,
+    getDepartments
 }

@@ -12,7 +12,7 @@ app.use(express.json())
 app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/courses', require('./routes/courseRoutes'))
 app.use('/api/department', require('./routes/deptRoutes'))
-
+app.use('/api/enrollment', require('./routes/enrollmentRoutes'))
 // Connect to mongodb atlas in the cloud
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>{
@@ -20,6 +20,6 @@ mongoose.connect(process.env.MONGO_URI)
         console.log(`Server running on port: ${port}`)
     })
 })
-.catch(err=>{
+.catch( err =>{
     console.error(err)
 })

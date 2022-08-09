@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const courseSchema = new mongoose.Schema({
     course_name:{
         type:String,
+        required:true,
     },
     course_code:{
         type:String,
@@ -17,11 +18,14 @@ const courseSchema = new mongoose.Schema({
     },
     credit:{
         type:String,
+        required:true,
     },
+
     course_instructor:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
     }
+
 },{timestamps:true})
 
-module.exports = mongoose.model("course", courseSchema)
+module.exports = mongoose.model("Course", courseSchema)

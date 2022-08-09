@@ -35,7 +35,7 @@ const signUpUser = asyncHandler( async (req, res) => {
         res.status(201).json({
             _id: user._id,
             username: user.username,
-            token:generateToken(user._id)
+            token:generateToken(user._id, user.role)
         })
     }else{
         res.status(400)
@@ -54,7 +54,7 @@ const signInUser = asyncHandler( async(req, res) => {
         res.status(200).json({
             _id: user._id,
             username,
-            token: generateToken(user._id)
+            token: generateToken(user._id, user.role)
         })
     }else{
         res.status(400)
@@ -83,7 +83,7 @@ const updateUser = asyncHandler(async (req, res) => {
 // @ENDPOINT /api/users/update/:user_id
 // method: PUT
 const deleteUser = asyncHandler( async (req, res) => {
-    const deletedUser = await User.findByIdAndDelete(req.params.user_id)
+    const deletedUser = await User.findByIdAndDelete(req.params.user_id).select('-password')
     if(!deletedUser){
         res.status(404)
         throw new Error("Couldn't deleted, User not found")
@@ -122,9 +122,14 @@ const getUser = asyncHandler( async (req, res) => {
 })
 
 // Function to generate Token for a user
-const generateToken = (id) => {
+const generateToken = (id, roles) => {
     return jwt.sign(
-        {id},
+        {
+            user:{
+                id,
+                roles
+            } 
+        },
         process.env.SECRET_JWT,{
             expiresIn:'30d'
         })
