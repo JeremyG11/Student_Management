@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Course = require('../models/cousesModel')
+const Course = require('../models/courseModel')
 
 const departmentSchema = mongoose.Schema({
     dept_name: {

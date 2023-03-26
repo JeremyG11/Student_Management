@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Department = require('../models/departmentsModel')
-const Course = require('../models/cousesModel')
+const Course = require('../models/courseModel')
+
 // Create a new department
 const createDept = asyncHandler( async (req, res) => {
 
@@ -23,6 +24,24 @@ const createDept = asyncHandler( async (req, res) => {
     }
 })
 
+// Query all  Departments
+// @ENDPOINT /api/department
+// method: GET
+const getDepartment = asyncHandler( async (req, res) => {
+    const department =  await Department.find({})
+    if(!department) {
+        res.status(404)
+        throw new Error('No department exists yet')
+    }else{
+        res.status(200).json({ 
+            data:department
+        })
+    }
+})
+
+// Query a specific Department
+// @ENDPOINT /api/department/:dept_id
+// method: GET
 const getDepartments = asyncHandler( async (req, res) => {
     const department =  await Department.findById(req.params.departmentId)
     if(!department) {
@@ -34,8 +53,46 @@ const getDepartments = asyncHandler( async (req, res) => {
         }})
     }
 })
+// Update a Department
+// @ENDPOINT /api/department/update/:dept_id
+// method: PUT
+const updateDepartment = asyncHandler(async(req,res)=>{
+    const department = await Department.findById(req.params.dept_id)
+    if(!department){
+        res.status(404)
+        throw new Error("Couldn't find that department")
+    }
+    const updatedDepartment = await Department.findByIdAndUpdate(
+        req.params.dept_id,
+        req.body,
+        {new:true},
+    )
+    res.status(200).json({
+        data:updatedDepartment,
+        message: 'Department has been updated successfully'
+    })
+
+})
+// Delete a Department
+// @ENDPOINT /api/department/delete/:dept_id
+// method: DELETE
+const deleteDepartment = asyncHandler(async(req, res )=>{
+    const department = await Department.findById(req.params.dept_id)
+    if(!department){
+        res.status(404)
+        throw new Error("That department does not exist couldnt't be deleted")
+    }else{
+        res.status(200).json({
+            data:department,
+            message: "Department has been deleted successfully"
+        })
+    }
+})
 
 module.exports = {
     createDept,
-    getDepartments
+    getDepartment,
+    getDepartments,
+    updateDepartment,
+    deleteDepartment
 }

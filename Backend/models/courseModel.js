@@ -12,7 +12,7 @@ const courseSchema = new mongoose.Schema({
     },
     course_dept:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Department',
+        ref: 'Department',
         required:true,
     
     },
@@ -24,7 +24,12 @@ const courseSchema = new mongoose.Schema({
     course_instructor:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
-    }
+    },
+    complete:{
+        type:Boolean,
+        default:false,
+    },
+
 
 },{timestamps:true})
 

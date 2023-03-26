@@ -1,11 +1,17 @@
 const express = require('express')
 const router = express.Router()
 
-const { createDept, getDepartments } = require('../controllers/deptController')
+const { departmentById } = require('../middlewares/departmentMiddleware')
+
+const { createDept, getDepartments, updateDepartment, 
+    deleteDepartment, getDepartment } = require('../controllers/deptController')
 
 router.post('/create', createDept)
+router.get('/', getDepartment)
 router.get('/:departmentId', getDepartments)
-router.put('/update/dept_id',  )
+router.put('/update/:dept_id', updateDepartment )
+router.delete('/delete/:dept_id', deleteDepartment )
 
+router.param('departmentId', departmentById)
 
 module.exports = router

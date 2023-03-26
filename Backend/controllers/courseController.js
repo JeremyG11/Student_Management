@@ -1,6 +1,6 @@
 
 const asyncHandler = require('express-async-handler')
-const Course = require('../models/cousesModel')
+const Course = require('../models/courseModel')
 const User = require('../models/userModel')
 const Department = require('../models/departmentsModel')
 
@@ -8,25 +8,40 @@ const Department = require('../models/departmentsModel')
 // @ENDPOINT /api/courses/add
 // method: POST
 const addCourse = asyncHandler( async (req, res) =>{
-    const { course_name, course_code, course_dept, credit } = req.body
 
-    const department = await Department.findOne({course_dept})
+    const { course_name, course_code,course_dept, credit } = req.body
 
-    if(!course_name || !course_code || !department){
+   
+    const department = await Department.findOne({dept_name:course_dept}).exec()
+     // check if department exists 
+    if(!department){
+        res.status(400)
+        throw new Error(" That department does not exist")
+    }
+
+    if(!course_name || !course_code){
         res.status(400)
         throw new Error('Course should have a name and code')
     }
     
     try {
-        console.log(department)
+
         const course = await Course.create({
             course_name,
             course_code,
             course_dept:department._id,
             credit
         })
-        department.courses.push(course)
-        department.save()
+
+        await Department.findOneAndUpdate(
+            {dept_name:course_dept},
+            {
+                $addToSet:{
+                    courses:course
+                }
+            },
+            {new:true},
+        )
      
         res.status(201).json({
             data:course
@@ -72,7 +87,8 @@ const updateCourse = asyncHandler( async (req, res)=>{
     }
     const updatedCourse = await findByIdAndUpdate(
         req.params.course_code, req.body, { new:true }
-    ).res.status(200).json({ 
+    )
+    .res.status(200).json({ 
         data:updatedCourse,
         message: 'Course has been updated successfully'
     })

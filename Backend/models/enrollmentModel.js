@@ -1,17 +1,23 @@
 const mongoose = require('mongoose');
 
 const enrollementSchema = mongoose.Schema({
-    
-    course:{
+    department:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Course',
-        required:true
+        ref:'Department',
+        require:"Each enrollment must have a department ",
     },
-
     student:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
+        required:"Student to be enrolled is required"
     },
+    courses:[
+        {
+            type:Array,
+            completed:false,
+            
+        },
+    ],
     
     enrolled_at:{
         type: Date,
