@@ -1,122 +1,102 @@
+const asyncHandler = require("express-async-handler");
+const Course = require("../models/courseModel");
 
-const asyncHandler = require('express-async-handler')
-const Course = require('../models/courseModel')
-const User = require('../models/userModel')
-const Department = require('../models/departmentsModel')
+const createCourse = asyncHandler(async (req, res) => {
+  const {
+    course_name,
+    course_code,
+    courseDepartment,
+    creditHours,
+    course_instructor,
+  } = req.body;
 
-// Add a course
-// @ENDPOINT /api/courses/add
-// method: POST
-const addCourse = asyncHandler( async (req, res) =>{
+  try {
+    const course = await Course.create({
+      course_name,
+      course_code,
+      courseDepartment,
+      creditHours,
+      course_instructor,
+    });
+    res
+      .status(201)
+      .json({ data: course, message: "Course created successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    const { course_name, course_code,course_dept, credit } = req.body
+const getAllCourses = asyncHandler(async (req, res) => {
+  try {
+    const courses = await Course.find({}).populate(
+      "courseDepartment",
+      "departmentName"
+    );
+    res.status(200).json({ data: courses });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-   
-    const department = await Department.findOne({dept_name:course_dept}).exec()
-     // check if department exists 
-    if(!department){
-        res.status(400)
-        throw new Error(" That department does not exist")
-    }
+const getCourseById = asyncHandler(async (req, res) => {
+  const courseId = req.params.courseId;
 
-    if(!course_name || !course_code){
-        res.status(400)
-        throw new Error('Course should have a name and code')
-    }
-    
-    try {
+  try {
+    const course = await Course.findById(courseId)
+      .populate("courseDepartment", "departmentName")
+      .populate("course_instructor", "instructor_name")
+      .populate("lessons", "title description");
 
-        const course = await Course.create({
-            course_name,
-            course_code,
-            course_dept:department._id,
-            credit
-        })
-
-        await Department.findOneAndUpdate(
-            {dept_name:course_dept},
-            {
-                $addToSet:{
-                    courses:course
-                }
-            },
-            {new:true},
-        )
-     
-        res.status(201).json({
-            data:course
-        })
-        
-    } catch (error) {
-        res.status(400).json({error: error.message})
-    }
-})
-
-// Get all the courses 
-// @ENDPOINT /api/courses
-// method: GET
-const getCourses = asyncHandler( async (req, res)=>{
-    const courses = await Course.find({})
-    res.status(200).json({
-        data: courses
-    })
-})
-
-const getCourse = asyncHandler( async (req, res)=>{
-    const course = await Course.findById(req.params.course_code);
     if (!course) {
-        res.status(404)
-        throw new Error('Course not found')
-    }else{
-        res.json({
-            data:course
-        })
+      res.status(404).json({ message: "Course not found" });
+    } else {
+      res.status(200).json({ data: course });
     }
-  
-})
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
+const updateCourseById = asyncHandler(async (req, res) => {
+  const courseId = req.params.courseId;
 
-// Update a course
-// @ENDPOINT /api/courses/update/:course_code
-// method: PUT
-const updateCourse = asyncHandler( async (req, res)=>{
-    const course = await Course.findById(req.params.course_code)
-    if(!course){
-        res.status(404)
-            throw new Error("Couldn't be updated, Course not found")
+  try {
+    const updatedCourse = await Course.findByIdAndUpdate(courseId, req.body, {
+      new: true,
+    });
+    if (!updatedCourse) {
+      res.status(404).json({ message: "Course not found" });
+    } else {
+      res
+        .status(200)
+        .json({ data: updatedCourse, message: "Course updated successfully" });
     }
-    const updatedCourse = await findByIdAndUpdate(
-        req.params.course_code, req.body, { new:true }
-    )
-    .res.status(200).json({ 
-        data:updatedCourse,
-        message: 'Course has been updated successfully'
-    })
-  
-})
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-// Delete a course
-// @ENDPOINT /api/courses/delete/:course_code
-// method: DELETE
-const deleteCourse = asyncHandler( async (req, res)=>{
-    const deletedCourse = await findByIdAndDelete(req.params.course_code)
-    if (!deletedCourse){
-        res.status(404)
-        throw new Error("Couldn't be deleted, Course not found")
-    }else{
-        res.status(200).json({
-            data:deletedCourse,
-            message: "Course has been deleted successfully"
-        })
+const deleteCourseById = asyncHandler(async (req, res) => {
+  const courseId = req.params.courseId;
+
+  try {
+    const deletedCourse = await Course.findByIdAndDelete(courseId);
+    if (!deletedCourse) {
+      res.status(404).json({ message: "Course not found" });
+    } else {
+      res
+        .status(200)
+        .json({ data: deletedCourse, message: "Course deleted successfully" });
     }
-    
-})
-
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = {
-    addCourse,
-    getCourses,
-    getCourse,
-    updateCourse,
-    deleteCourse,
-}
+  createCourse,
+  getAllCourses,
+  getCourseById,
+  updateCourseById,
+  deleteCourseById,
+};

@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const User = require('../models/userModel')
 const { roles } = require('../config/roles')
 
 const grantAccess = (action, resource)=>{

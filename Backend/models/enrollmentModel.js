@@ -1,30 +1,37 @@
 const mongoose = require('mongoose');
+const Student = require('../models/studentModel');
+const Course = require('../models/courseModel'); 
 
-const enrollementSchema = mongoose.Schema({
-    department:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Department',
-        require:"Each enrollment must have a department ",
+const enrollmentSchema = mongoose.Schema({
+    student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',  
+        required: true,
     },
-    student:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
-        required:"Student to be enrolled is required"
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course', 
+        required: true,
     },
-    courses:[
-        {
-            type:Array,
-            completed:false,
-            
-        },
-    ],
-    
-    enrolled_at:{
+    enrolled_at: {
         type: Date,
-        default:Date.now()
+        default: Date.now,
     },
-    
+    status: {
+        type: String,
+        enum: ['pending', 'active', 'completed'],
+        default: 'pending',
+    },
+    grade: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default:null
+    },
+    completion_date: {
+        type: Date,
+    },
+     
+}, { timestamps: true });
 
-}, { timestamps: true })
-
-module.exports = mongoose.model("Enrollment", enrollementSchema)
+module.exports = mongoose.model('Enrollment', enrollmentSchema);

@@ -10,7 +10,7 @@ const courseById = asyncHandler(async(req, res, next, id)=>{
                 error: 'Department not found',
             })
         }else{
-            req.course = course
+            req.course = cours
         }
         next()
     }catch(error){
