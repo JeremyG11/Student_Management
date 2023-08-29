@@ -116,12 +116,12 @@ const deleteStudent = asyncHandler(async (req, res) => {
 });
 
 // Function to generate Token for a user
-const generateToken = (id, roles) => {
+const generateToken = (id, email) => {
   return jwt.sign(
     {
       user: {
         id,
-        roles,
+        email,
       },
     },
     process.env.SECRET_JWT,
@@ -139,4 +139,5 @@ module.exports = {
 
   deleteStudent,
   updateStudent,
+  generateToken,
 };

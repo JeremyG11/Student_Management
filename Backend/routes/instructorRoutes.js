@@ -8,7 +8,7 @@ router.post("/register", instructorController.createInstructor);
 router.put("/update/:id", instructorController.updateInstructor);
 router.delete("/delete/:id", instructorController.deleteInstructor);
 
-// router.get("/", instructorController);
+router.get("/", instructorController.getAllInstructors);
 router.get("/:id", instructorController.getInstructorById);
 
 module.exports = router;

@@ -1,7 +1,46 @@
 const Instructor = require("../models/instructorModel");
+const Student = require("../models/studentModel");
 const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcryptjs");
+const { generateToken } = require("../controllers/studentController");
 
-// Create a new instructor
+const getUserByEmail = async (email) => {
+  const [student, instructor] = await Promise.all([
+    Student.findOne({ email }),
+    Instructor.findOne({ email }),
+  ]);
+
+  if (instructor) {
+    return instructor;
+  }
+
+  if (student) {
+    return student;
+  }
+
+  return null;
+};
+
+const loginUser = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await getUserByEmail(email);
+
+    if (user && bcrypt.compare(user.password, password)) {
+      res.status(200).json({
+        user,
+        token: generateToken(user._id, user.email),
+      });
+    } else {
+      res.status(400);
+      throw new Error("Couldn't login user with those credentials");
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const createInstructor = asyncHandler(async (req, res) => {
   try {
     const { first_name, last_name, email, bio, courses_taught } = req.body;
@@ -15,6 +54,15 @@ const createInstructor = asyncHandler(async (req, res) => {
     });
 
     res.status(201).json({ instructor: newInstructor });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+const getAllInstructors = asyncHandler(async (req, res) => {
+  try {
+    const instructors = await Instructor.find({});
+
+    res.status(200).json({ instructors });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -89,7 +137,9 @@ const deleteInstructor = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  loginUser,
   createInstructor,
+  getAllInstructors,
   getInstructorById,
   updateInstructor,
   deleteInstructor,
